@@ -27,12 +27,15 @@ pinned via `url`/`sha256`, plain `brew install` will give that release while
 
 ## Status
 
-- **`xymon-client`** — ✅ builds & installs on `macos-latest` via CI (`--HEAD`, latest commit).
-- **`xymon`** (server) — ⚠️ WIP: the full server build stalls on the runner and is
-  still being investigated. Its CI leg is timeboxed and non-blocking. Prefer the
-  client on macOS; running a full Xymon **server** on macOS is not yet supported here.
+Both formulae build and install on `macos-latest` via CI (`--HEAD`, latest commit):
 
-### Work in progress
+- **`xymon`** (server) — ✅ builds & installs. Build-only: it does not create a
+  `xymon` user, web-server config, or a launchd service — runtime setup (hosts.cfg,
+  web CGIs, a launch mechanism) is left to the admin.
+- **`xymon-client`** — ✅ builds & installs. The lighter, self-contained option for
+  monitoring a Mac that reports to an existing server.
+
+### Notes
 
 These formulae build Xymon from the `main` branch via its standard
 `configure`/`make` build, using Homebrew-provided dependencies
