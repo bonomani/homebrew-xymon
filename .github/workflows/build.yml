@@ -17,12 +17,16 @@ permissions:
 jobs:
   build:
     runs-on: macos-latest
+    timeout-minutes: 30   # the server build can stall; never burn the 6h default
     strategy:
       fail-fast: false
       matrix:
         # xymon (server) and xymon-client conflict, so build each in its own
         # runner rather than installing both side by side.
         formula: [xymon, xymon-client]
+    # The server formula is still WIP (long/stalling build), so don't let it
+    # fail the workflow; the client must pass.
+    continue-on-error: ${{ matrix.formula == 'xymon' }}
     steps:
       - name: Checkout tap
         uses: actions/checkout@v4

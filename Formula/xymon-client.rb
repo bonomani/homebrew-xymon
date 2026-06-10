@@ -25,6 +25,9 @@ class XymonClient < Formula
 
     system "./configure", "--client"
     system "make"
+    # The client install targets cp into $XYMONHOME/{bin,etc,...} without
+    # creating them first; Homebrew only makes `prefix`, so pre-create them.
+    %w[bin etc ext local logs tmp].each { |d| (prefix/d).mkpath }
     system "make", "install", "PKGBUILD=1"
   end
 
