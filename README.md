@@ -25,7 +25,14 @@ That's the always-latest workflow. (When a stable `rel-4.3.31` tarball is later
 pinned via `url`/`sha256`, plain `brew install` will give that release while
 `--HEAD` keeps giving the latest commit — the two coexist.)
 
-## Status: work in progress
+## Status
+
+- **`xymon-client`** — ✅ builds & installs on `macos-latest` via CI (`--HEAD`, latest commit).
+- **`xymon`** (server) — ⚠️ WIP: the full server build stalls on the runner and is
+  still being investigated. Its CI leg is timeboxed and non-blocking. Prefer the
+  client on macOS; running a full Xymon **server** on macOS is not yet supported here.
+
+### Work in progress
 
 These formulae build Xymon from the `main` branch via its standard
 `configure`/`make` build, using Homebrew-provided dependencies
