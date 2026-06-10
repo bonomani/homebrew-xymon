@@ -51,12 +51,26 @@ class Xymon < Formula
     system "make", "install", "PKGBUILD=1"
   end
 
+  # Run the server under launchd: `brew services start xymon`.
+  # xymonlaunch --no-daemon stays in the foreground so launchd supervises it.
+  # (Build is CI-verified; the running service still wants a real macOS check.)
+  service do
+    run [opt_prefix/"bin/xymonlaunch", "--no-daemon",
+         "--config=#{opt_prefix}/etc/tasks.cfg",
+         "--env=#{opt_prefix}/etc/xymonserver.cfg",
+         "--log=#{var}/log/xymon/xymonlaunch.log"]
+    keep_alive true
+    working_dir opt_prefix
+    log_path "#{var}/log/xymon/xymonlaunch.out"
+    error_log_path "#{var}/log/xymon/xymonlaunch.err"
+  end
+
   def caveats
     <<~EOS
       Xymon server installed under #{opt_prefix}.
-      This is a build-only formula: it does NOT create a xymon user, web server
-      config, or a launchd service. Configure runtime paths, the monitored-host
-      list (etc/hosts.cfg), and a launch mechanism manually before starting xymond.
+      Build-only: it does NOT create a xymon user or web-server config. Edit the
+      monitored-host list (#{opt_prefix}/etc/hosts.cfg) and runtime paths, then:
+        brew services start xymon
     EOS
   end
 

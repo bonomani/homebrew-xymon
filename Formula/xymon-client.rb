@@ -31,11 +31,25 @@ class XymonClient < Formula
     system "make", "install", "PKGBUILD=1"
   end
 
+  # Run the client under launchd: `brew services start xymon-client`.
+  # xymonlaunch --no-daemon stays in the foreground so launchd supervises it.
+  # (Build is CI-verified; the running service still wants a real macOS check.)
+  service do
+    run [opt_prefix/"bin/xymonlaunch", "--no-daemon",
+         "--config=#{opt_prefix}/etc/clientlaunch.cfg",
+         "--env=#{opt_prefix}/etc/xymonclient.cfg",
+         "--log=#{var}/log/xymon/clientlaunch.log"]
+    keep_alive true
+    working_dir opt_prefix
+    log_path "#{var}/log/xymon/clientlaunch.out"
+    error_log_path "#{var}/log/xymon/clientlaunch.err"
+  end
+
   def caveats
     <<~EOS
       Xymon client installed under #{opt_prefix}.
-      Set XYMSRV (the server address) in etc/xymonclient.cfg and arrange a
-      launch mechanism (launchd/cron) before running runclient.sh.
+      Set XYMSRV (the server address) in #{opt_prefix}/etc/xymonclient.cfg, then:
+        brew services start xymon-client
     EOS
   end
 
