@@ -23,7 +23,7 @@ jobs:
       matrix:
         # xymon (server) and xymon-client conflict, so build each in its own
         # runner rather than installing both side by side.
-        formula: [xymon, xymon-client]
+        formula: [xymon-server, xymon-client]
     steps:
       - name: Checkout tap
         uses: actions/checkout@v4

@@ -4,14 +4,14 @@ class XymonClient < Formula
   license "GPL-2.0-or-later"
 
   # No upstream release tarball is published yet. Build from main for now.
-  # Once `rel-4.3.31` is cut, pin url + sha256 (see Formula/xymon.rb) and drop --HEAD.
+  # Once `rel-4.3.31` is cut, pin url + sha256 (see Formula/xymon-server.rb) and drop --HEAD.
   head "https://github.com/xymon-monitoring/xymon.git", branch: "main"
 
   depends_on "openssl@3"
 
   # The client and server install the same `xymond` deobfuscation tools; they
   # conflict if both are linked. Install the client keg-only or unlink the other.
-  conflicts_with "xymon", because: "both install overlapping client tools"
+  conflicts_with "xymon-server", because: "both install overlapping client tools"
 
   def install
     # configure.client is env-var driven too. CONFTYPE selects the client

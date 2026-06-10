@@ -1,4 +1,4 @@
-class Xymon < Formula
+class XymonServer < Formula
   desc "Xymon network and systems monitor (server)"
   homepage "https://xymon.com/"
   license "GPL-2.0-or-later"
@@ -51,7 +51,7 @@ class Xymon < Formula
     system "make", "install", "PKGBUILD=1"
   end
 
-  # Run the server under launchd: `brew services start xymon`.
+  # Run the server under launchd: `brew services start xymon-server`.
   # xymonlaunch --no-daemon stays in the foreground so launchd supervises it.
   # (Build is CI-verified; the running service still wants a real macOS check.)
   service do
@@ -70,7 +70,7 @@ class Xymon < Formula
       Xymon server installed under #{opt_prefix}.
       Build-only: it does NOT create a xymon user or web-server config. Edit the
       monitored-host list (#{opt_prefix}/etc/hosts.cfg) and runtime paths, then:
-        brew services start xymon
+        brew services start xymon-server
     EOS
   end
 
