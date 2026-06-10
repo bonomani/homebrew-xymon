@@ -20,6 +20,11 @@ class Xymon < Formula
     # XYMONUSER to be a real OS user, so build as the invoking user.
     # PKGBUILD=1 makes `make install` skip the chown/chgrp/user-creation steps,
     # so everything lands cleanly under the Homebrew prefix with no root.
+    # build/fping.sh (server-only probe) otherwise prompts "use fping? [Y/n]"
+    # and blocks forever in a non-interactive build. Setting USEXYMONPING skips
+    # that whole block and uses the external fping dependency.
+    ENV["USEXYMONPING"]      = "n"
+    ENV["USERFPING"]         = "#{Formula["fping"].opt_bin}/fping"
     ENV["ENABLESSL"]         = "y"
     ENV["ENABLELDAP"]        = "n"
     ENV["XYMONUSER"]         = ENV["USER"]
@@ -35,8 +40,13 @@ class Xymon < Formula
     ENV["XYMONHOSTIP"]       = "127.0.0.1"
     ENV["MANROOT"]           = man.to_s
 
-    system "./configure", "--server"
+    # Redirect stdin from /dev/null so any remaining probe prompt gets EOF and
+    # falls back to its default instead of blocking a non-interactive build.
+    system "/bin/sh", "-c", "exec ./configure --server </dev/null"
     system "make"
+    # The install targets cp into $XYMONHOME/{bin,etc,...} without creating them;
+    # Homebrew only makes `prefix`, so pre-create the layout.
+    %w[bin etc ext web cgi-bin cgi-secure www server download].each { |d| (prefix/d).mkpath }
     # INSTALLROOT unset → install directly into XYMONTOPDIR (= prefix).
     system "make", "install", "PKGBUILD=1"
   end
