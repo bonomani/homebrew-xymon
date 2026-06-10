@@ -27,10 +27,14 @@ jobs:
       - name: Checkout tap
         uses: actions/checkout@v4
 
+      - name: Register this checkout as a tap
+        # tap name = repo with the "homebrew-" prefix stripped (bonomani/xymon);
+        # `brew tap <name> <path>` registers the checked-out files as that tap,
+        # so a PR tests the edited formula, not the pushed remote.
+        run: brew tap "${GITHUB_REPOSITORY/homebrew-/}" "$PWD"
+
       - name: Build ${{ matrix.formula }} from latest commit (--HEAD)
-        run: |
-          brew install --HEAD --build-from-source --formula \
-            "./Formula/${{ matrix.formula }}.rb"
+        run: brew install --HEAD --build-from-source "${GITHUB_REPOSITORY/homebrew-/}/${{ matrix.formula }}"
 
       - name: Show what was installed
         run: brew list --verbose "${{ matrix.formula }}" || true
