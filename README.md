@@ -4,9 +4,9 @@ A [Homebrew](https://brew.sh/) tap for [Xymon](https://xymon.com/) on macOS —
 **server** and **client**.
 
 ```sh
-brew tap bonomani/xymon
-brew install --HEAD bonomani/xymon/xymon-server   # server
-brew install --HEAD bonomani/xymon/xymon-client   # client only
+brew tap xymon-monitoring/xymon
+brew install --HEAD xymon-monitoring/xymon/xymon-server   # server
+brew install --HEAD xymon-monitoring/xymon/xymon-client   # client only
 ```
 
 Run under launchd:
@@ -39,9 +39,9 @@ the **newest commit**. HEAD installs don't auto-detect new commits — force a
 re-fetch to pull a fresh one:
 
 ```sh
-brew upgrade --fetch-HEAD bonomani/xymon/xymon-server
+brew upgrade --fetch-HEAD xymon-monitoring/xymon/xymon-server
 # or rebuild from scratch at the current tip:
-brew reinstall --HEAD bonomani/xymon/xymon-server
+brew reinstall --HEAD xymon-monitoring/xymon/xymon-server
 ```
 
 ## Pinning a stable release (TODO)
