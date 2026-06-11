@@ -91,7 +91,7 @@ class XymonServer < Formula
         "Could not attach shm / Too many open files" until you raise it. Run this
         (root), then reboot so the new limits take before shm is first used:
 
-          sudo sh -c 'printf "%s\\n" kern.sysv.shmmax=67108864 kern.sysv.shmmni=128 kern.sysv.shmseg=64 kern.sysv.shmall=32768 >> /etc/sysctl.conf' && sudo reboot
+          sudo sh -c 'f=/etc/sysctl.conf; t=$(mktemp); { grep -v "^kern.sysv.shm" "$f" 2>/dev/null; printf "%s\\n" kern.sysv.shmmax=67108864 kern.sysv.shmmni=128 kern.sysv.shmseg=64 kern.sysv.shmall=32768; } > "$t" && mv "$t" "$f"' && sudo reboot
       EOS
     else
       shown = shmseg.zero? ? "unknown" : shmseg.to_s
