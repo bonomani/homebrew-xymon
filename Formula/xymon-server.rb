@@ -88,12 +88,10 @@ class XymonServer < Formula
 
         WARNING: kern.sysv.shmseg is currently #{shmseg} - too low. xymond needs one
         SysV shared-memory segment per channel (~9) and will crash-loop with
-        "Could not attach shm / Too many open files" until you raise it. Add to
-        /etc/sysctl.conf (root) and reboot so it takes before shm is first used:
-          kern.sysv.shmmax=67108864
-          kern.sysv.shmmni=128
-          kern.sysv.shmseg=64
-          kern.sysv.shmall=32768
+        "Could not attach shm / Too many open files" until you raise it. Run this
+        (root), then reboot so the new limits take before shm is first used:
+
+          sudo sh -c 'printf "%s\\n" kern.sysv.shmmax=67108864 kern.sysv.shmmni=128 kern.sysv.shmseg=64 kern.sysv.shmall=32768 >> /etc/sysctl.conf' && sudo reboot
       EOS
     else
       shown = shmseg.zero? ? "unknown" : shmseg.to_s
