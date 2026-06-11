@@ -90,9 +90,10 @@ class XymonServer < Formula
         brew install httpd
         echo 'Include #{opt_prefix}/server/etc/xymon-apache.conf' | sudo tee -a #{HOMEBREW_PREFIX}/etc/httpd/httpd.conf
         # Homebrew's Apache ships most modules disabled; Xymon's vhost needs these:
-        # Homebrew Apache defaults to the prefork MPM, which needs mod_cgi
-        # (mod_cgid is for the threaded event/worker MPMs):
-        sudo sed -i '' -E 's@^#(LoadModule (rewrite|alias|cgi|authz_core|include)_module)@\\1@' #{HOMEBREW_PREFIX}/etc/httpd/httpd.conf
+        # Homebrew's Apache ships these modules disabled; the cgi/cgid LoadModule
+        # lines are indented inside <IfModule> MPM guards, so match leading space
+        # and uncomment both (the guard loads only the one matching your MPM):
+        sudo sed -i '' -E 's@^([[:space:]]*)#(LoadModule (rewrite|alias|cgid|cgi|authz_core|include)_module)@\\1\\2@' #{HOMEBREW_PREFIX}/etc/httpd/httpd.conf
         #{HOMEBREW_PREFIX}/bin/httpd -t          # expect: Syntax OK
         brew services start httpd
       then open  http://localhost:8080/xymon/
