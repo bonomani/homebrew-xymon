@@ -72,7 +72,8 @@ class XymonServer < Formula
   end
 
   def caveats
-    <<~EOS
+    shmseg = `/usr/sbin/sysctl -n kern.sysv.shmseg 2>/dev/null`.to_i
+    msg = <<~EOS
       Xymon server installed under #{opt_prefix}/server.
       Build-only: it does NOT create a xymon user or web-server config. Edit the
       monitored-host list (#{opt_prefix}/server/etc/hosts.cfg) and runtime paths, then:
@@ -80,14 +81,30 @@ class XymonServer < Formula
 
       Binaries are under #{opt_prefix}/server/bin (not linked into PATH); run e.g.
         #{opt_prefix}/server/bin/xymon 127.0.0.1 "ping"
-
-      macOS SysV shared-memory limits are too low for xymond, which needs one
-      shm segment per channel (~9) but kern.sysv.shmseg defaults to 8. Without
-      raising them xymond crash-loops with "Could not attach shm". Set (as root):
-        sudo sysctl -w kern.sysv.shmmax=67108864 kern.sysv.shmmni=128 \\
-                       kern.sysv.shmseg=64 kern.sysv.shmall=32768
-      and add the same lines to /etc/sysctl.conf to persist across reboot.
     EOS
+
+    if (1..15).cover?(shmseg)
+      msg += <<~EOS
+
+        WARNING: kern.sysv.shmseg is currently #{shmseg} - too low. xymond needs one
+        SysV shared-memory segment per channel (~9) and will crash-loop with
+        "Could not attach shm / Too many open files" until you raise it. Add to
+        /etc/sysctl.conf (root) and reboot so it takes before shm is first used:
+          kern.sysv.shmmax=67108864
+          kern.sysv.shmmni=128
+          kern.sysv.shmseg=64
+          kern.sysv.shmall=32768
+      EOS
+    else
+      shown = shmseg.zero? ? "unknown" : shmseg.to_s
+      msg += <<~EOS
+
+        (kern.sysv.shmseg = #{shown}.) xymond needs >= ~10 shm segments per process;
+        if it crash-loops with "Could not attach shm", raise the SysV shm limits in
+        /etc/sysctl.conf (kern.sysv.shmseg etc.) and reboot.
+      EOS
+    end
+    msg
   end
 
   test do
