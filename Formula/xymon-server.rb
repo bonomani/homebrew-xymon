@@ -89,7 +89,6 @@ class XymonServer < Formula
       To serve it with Homebrew Apache:
         brew install httpd
         echo 'Include #{opt_prefix}/server/etc/xymon-apache.conf' | sudo tee -a #{HOMEBREW_PREFIX}/etc/httpd/httpd.conf
-        # Homebrew's Apache ships most modules disabled; Xymon's vhost needs these:
         # Homebrew's Apache ships these modules disabled; the cgi/cgid LoadModule
         # lines are indented inside <IfModule> MPM guards, so match leading space
         # and uncomment both (the guard loads only the one matching your MPM):
@@ -97,6 +96,8 @@ class XymonServer < Formula
         #{HOMEBREW_PREFIX}/bin/httpd -t          # expect: Syntax OK
         brew services start httpd
       then open  http://localhost:8080/xymon/
+      (8080 is Homebrew Apache's default; port 80 is privileged - to use it,
+       set 'Listen 80' in httpd.conf and run 'sudo brew services start httpd'.)
     EOS
 
     if (1..15).cover?(shmseg)
