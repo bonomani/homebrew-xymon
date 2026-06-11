@@ -81,6 +81,17 @@ class XymonServer < Formula
 
       Binaries are under #{opt_prefix}/server/bin (not linked into PATH); run e.g.
         #{opt_prefix}/server/bin/xymon 127.0.0.1 "ping"
+
+      Web UI: Xymon's pages are static HTML + CGIs that need an HTTP server with
+      CGI - the formula does NOT touch your web server (that's an admin choice).
+      The install wrote a ready-to-include Apache config (real paths baked in) at
+        #{opt_prefix}/server/etc/xymon-apache.conf
+      To serve it with Homebrew Apache:
+        brew install httpd
+        echo 'Include #{opt_prefix}/server/etc/xymon-apache.conf' | sudo tee -a #{HOMEBREW_PREFIX}/etc/httpd/httpd.conf
+        # CGI must be on: ensure "LoadModule cgid_module ..." is uncommented in that httpd.conf
+        brew services start httpd
+      then open  http://localhost:8080/xymon/
     EOS
 
     if (1..15).cover?(shmseg)
