@@ -80,6 +80,13 @@ class XymonServer < Formula
 
       Binaries are under #{opt_prefix}/server/bin (not linked into PATH); run e.g.
         #{opt_prefix}/server/bin/xymon 127.0.0.1 "ping"
+
+      macOS SysV shared-memory limits are too low for xymond, which needs one
+      shm segment per channel (~9) but kern.sysv.shmseg defaults to 8. Without
+      raising them xymond crash-loops with "Could not attach shm". Set (as root):
+        sudo sysctl -w kern.sysv.shmmax=67108864 kern.sysv.shmmni=128 \\
+                       kern.sysv.shmseg=64 kern.sysv.shmall=32768
+      and add the same lines to /etc/sysctl.conf to persist across reboot.
     EOS
   end
 
