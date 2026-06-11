@@ -49,32 +49,41 @@ class XymonServer < Formula
     %w[bin etc ext web cgi-bin cgi-secure www server download].each { |d| (prefix/d).mkpath }
     # INSTALLROOT unset → install directly into XYMONTOPDIR (= prefix).
     system "make", "install", "PKGBUILD=1"
+    # `configure --server` lays the server out under prefix/server/ (with a
+    # matching client/ tree); the log dir (XYMONLOGDIR) is outside the keg and
+    # is not created by the install, so make it here.
+    (var/"log/xymon").mkpath
   end
 
   # Run the server under launchd: `brew services start xymon-server`.
   # xymonlaunch --no-daemon stays in the foreground so launchd supervises it.
+  # NOTE: a server install nests everything under <prefix>/server/, so the
+  # binaries and config live in server/bin and server/etc (not prefix/bin|etc).
   # (Build is CI-verified; the running service still wants a real macOS check.)
   service do
-    run [opt_prefix/"bin/xymonlaunch", "--no-daemon",
-         "--config=#{opt_prefix}/etc/tasks.cfg",
-         "--env=#{opt_prefix}/etc/xymonserver.cfg",
+    run [opt_prefix/"server/bin/xymonlaunch", "--no-daemon",
+         "--config=#{opt_prefix}/server/etc/tasks.cfg",
+         "--env=#{opt_prefix}/server/etc/xymonserver.cfg",
          "--log=#{var}/log/xymon/xymonlaunch.log"]
     keep_alive true
-    working_dir opt_prefix
+    working_dir "#{opt_prefix}/server"
     log_path "#{var}/log/xymon/xymonlaunch.out"
     error_log_path "#{var}/log/xymon/xymonlaunch.err"
   end
 
   def caveats
     <<~EOS
-      Xymon server installed under #{opt_prefix}.
+      Xymon server installed under #{opt_prefix}/server.
       Build-only: it does NOT create a xymon user or web-server config. Edit the
-      monitored-host list (#{opt_prefix}/etc/hosts.cfg) and runtime paths, then:
+      monitored-host list (#{opt_prefix}/server/etc/hosts.cfg) and runtime paths, then:
         brew services start xymon-server
+
+      Binaries are under #{opt_prefix}/server/bin (not linked into PATH); run e.g.
+        #{opt_prefix}/server/bin/xymon 127.0.0.1 "ping"
     EOS
   end
 
   test do
-    assert_predicate bin/"xymond", :exist?
+    assert_predicate prefix/"server/bin/xymond", :exist?
   end
 end
