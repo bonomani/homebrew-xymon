@@ -89,7 +89,9 @@ class XymonServer < Formula
       To serve it with Homebrew Apache:
         brew install httpd
         echo 'Include #{opt_prefix}/server/etc/xymon-apache.conf' | sudo tee -a #{HOMEBREW_PREFIX}/etc/httpd/httpd.conf
-        # CGI must be on: ensure "LoadModule cgid_module ..." is uncommented in that httpd.conf
+        # Homebrew's Apache ships most modules disabled; Xymon's vhost needs these:
+        sudo sed -i '' -E 's@^#(LoadModule (rewrite|alias|cgid|authz_core|include)_module)@\\1@' #{HOMEBREW_PREFIX}/etc/httpd/httpd.conf
+        #{HOMEBREW_PREFIX}/bin/httpd -t          # expect: Syntax OK
         brew services start httpd
       then open  http://localhost:8080/xymon/
     EOS
