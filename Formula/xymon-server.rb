@@ -53,6 +53,16 @@ class XymonServer < Formula
     # matching client/ tree); the log dir (XYMONLOGDIR) is outside the keg and
     # is not created by the install, so make it here.
     (var/"log/xymon").mkpath
+    # `make install` also does not create the writable runtime dirs, so the
+    # server can't actually run after install:
+    #   XYMONTMP (= XYMONHOME/tmp = prefix/server/tmp) holds the xymond_rrd
+    #     control socket and xymonnet's ping work files. Missing, xymond_rrd
+    #     dies every cycle ("Cannot bind to cache-control socket (No such file
+    #     or directory)") so no RRDs/graphs are ever written, and the conn
+    #     (ping) test fails with "Cannot create file .../tmp/ping-stdout".
+    #   XYMONVAR (= prefix/data) holds the RRDs, history, acks, etc.
+    (prefix/"server/tmp").mkpath
+    %w[rrd acks data disabled hist histlogs logs].each { |d| (prefix/"data"/d).mkpath }
   end
 
   # Run the server under launchd: `brew services start xymon-server`.
